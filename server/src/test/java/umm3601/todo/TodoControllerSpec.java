@@ -3,7 +3,7 @@ package umm3601.todo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-// import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 // import java.util.Arrays;
@@ -18,7 +18,7 @@ import org.mockito.ArgumentCaptor;
 
 // import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
-// import io.javalin.http.HttpStatus;
+import io.javalin.http.HttpStatus;
 // import io.javalin.http.NotFoundResponse;
 
 import umm3601.Server;
@@ -51,6 +51,20 @@ public class TodoControllerSpec {
     ArgumentCaptor<Todo[]> argument = ArgumentCaptor.forClass(Todo[].class);
     verify(ctx).json(argument.capture());
     assertEquals(db.size(), argument.getValue().length);
+  }
+
+  @Test
+  public void canGetTodoWithSpecifiedId() throws IOException {
+    String id = "588935f5c668650dc77df581";
+    Todo todo = db.getTodo(id);
+
+    when(ctx.pathParam("id")).thenReturn(id);
+
+    todoController.getTodos(ctx);
+
+    verify(ctx).json(todo);
+    verify(ctx).status(HttpStatus.OK);
+    assertEquals("Proident voluptate proident proident labore est adipisicing ullamco deserunt ea sunt aute eiusmod. Elit elit irure irure sit irure consectetur qui aliqua ullamco voluptate.", todo.body);
   }
 }
 
