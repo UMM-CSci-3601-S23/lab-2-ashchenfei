@@ -2,7 +2,7 @@ package umm3601.todo;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-//import java.util.Arrays;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -29,5 +29,9 @@ public class TodoDatabase {
     Todo[] filteredTodos = allTodos;
 
     return allTodos;
+  }
+
+  public Todo getTodo(String id) {
+    return Arrays.stream(allTodos).filter(x -> x._id.equals(id)).findFirst().orElse(null);
   }
 }
