@@ -20,7 +20,7 @@ public class TodoController {
   /*
    * Produce a JSON response with a list of all the todo entries in the "database".
    */
-  public void getTodo(Context ctx) {
+  public void getTodos(Context ctx) {
     Todo[] todos = database.listTodos(ctx.queryParamMap());
     ctx.json(todos);
   }
