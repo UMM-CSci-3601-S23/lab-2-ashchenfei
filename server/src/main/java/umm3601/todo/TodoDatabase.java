@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-//import io.javalin.http.BadRequestResponse;
+import io.javalin.http.BadRequestResponse;
 
 /*
  * A fake "database" of the todo's loaded from file
@@ -32,6 +32,16 @@ public class TodoDatabase {
     if (queryParams.containsKey("status")) {
       boolean status = queryParams.get("status").get(0).equals("complete");
       filteredTodos = filterTodosByCompleteness(filteredTodos, status);
+    }
+
+    // Truncate response if limit is set
+    if (queryParams.containsKey("limit")) {
+      try {
+        int limit = Integer.parseInt(queryParams.get("limit").get(0));
+        filteredTodos = Arrays.copyOfRange(filteredTodos, 0, limit);
+      } catch (NumberFormatException e) {
+        throw new BadRequestResponse("Specified limit '" + queryParams.get("limit").get(0) + "' can't be parsed to an integer");
+      }
     }
 
     return filteredTodos;
