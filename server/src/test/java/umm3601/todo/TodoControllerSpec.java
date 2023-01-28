@@ -1,15 +1,17 @@
 package umm3601.todo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-// import java.util.Arrays;
-// import java.util.HashMap;
-// import java.util.List;
-// import java.util.Map;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,6 +82,51 @@ public class TodoControllerSpec {
       todoController.getTodo(ctx);
     });
     assertEquals("No todo with id " + id + " was found.", exception.getMessage());
+  }
+
+
+  @Test
+  public void canGetTodosWithStatusComplete() throws IOException {
+    // Add a query param map to the context that maps "status"
+    // to "complete".
+    Map<String, List<String>> queryParams = new HashMap<>();
+    queryParams.put("status", Arrays.asList(new String[] {"complete"}));
+    when(ctx.queryParamMap()).thenReturn(queryParams);
+
+    // Call the method on the mock controller with the added
+    // query param map to limit the result to just todos with
+    // status complete.
+    todoController.getTodos(ctx);
+
+    // Confirm that all the todos passed to `json` have status complete.
+    ArgumentCaptor<Todo[]> argument = ArgumentCaptor.forClass(Todo[].class);
+    verify(ctx).json(argument.capture());
+    for (Todo todo : argument.getValue()) {
+      assertTrue(todo.status);
+    }
+
+  }
+
+  @Test
+  public void canGetTodosWithStatusIncomplete() throws IOException {
+    // Add a query param map to the context that maps "status"
+    // to "complete".
+    Map<String, List<String>> queryParams = new HashMap<>();
+    queryParams.put("status", Arrays.asList(new String[] {"incomplete"}));
+    when(ctx.queryParamMap()).thenReturn(queryParams);
+
+    // Call the method on the mock controller with the added
+    // query param map to limit the result to just todos with
+    // status complete.
+    todoController.getTodos(ctx);
+
+    // Confirm that all the todos passed to `json` have status complete.
+    ArgumentCaptor<Todo[]> argument = ArgumentCaptor.forClass(Todo[].class);
+    verify(ctx).json(argument.capture());
+    for (Todo todo : argument.getValue()) {
+      assertFalse(todo.status);
+    }
+
   }
 }
 
