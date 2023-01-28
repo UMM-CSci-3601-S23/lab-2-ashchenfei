@@ -84,6 +84,19 @@ public class TodoControllerSpec {
     assertEquals("No todo with id " + id + " was found.", exception.getMessage());
   }
 
+  @Test
+  public void canLimitResponseLength() throws IOException {
+    Map<String, List<String>> queryParams = new HashMap<>();
+    queryParams.put("limit", Arrays.asList(new String[] {"7"}));
+    when(ctx.queryParamMap()).thenReturn(queryParams);
+
+    todoController.getTodos(ctx);
+
+    // Confirm that the number of responded todos is less than or equal to the requested number
+    ArgumentCaptor<Todo[]> argument = ArgumentCaptor.forClass(Todo[].class);
+    verify(ctx).json(argument.capture());
+    assert(argument.getValue().length <= 7);
+  }
 
   @Test
   public void canGetTodosWithStatusComplete() throws IOException {
