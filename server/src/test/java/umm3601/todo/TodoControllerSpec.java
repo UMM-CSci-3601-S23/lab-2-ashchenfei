@@ -110,7 +110,7 @@ public class TodoControllerSpec {
   @Test
   public void canGetTodosWithStatusIncomplete() throws IOException {
     // Add a query param map to the context that maps "status"
-    // to "complete".
+    // to "incomplete".
     Map<String, List<String>> queryParams = new HashMap<>();
     queryParams.put("status", Arrays.asList(new String[] {"incomplete"}));
     when(ctx.queryParamMap()).thenReturn(queryParams);

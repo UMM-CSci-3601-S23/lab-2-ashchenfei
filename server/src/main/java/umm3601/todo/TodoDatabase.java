@@ -28,10 +28,23 @@ public class TodoDatabase {
   public Todo[] listTodos(Map<String, List<String>> queryParams) {
     Todo[] filteredTodos = allTodos;
 
-    return allTodos;
+    // Filter status if it is set
+    if (queryParams.containsKey("status")) {
+      boolean status = queryParams.get("status").get(0).equals("complete");
+      filteredTodos = filterTodosByCompleteness(filteredTodos, status);
+    }
+
+    return filteredTodos;
   }
 
   public Todo getTodo(String id) {
     return Arrays.stream(allTodos).filter(x -> x._id.equals(id)).findFirst().orElse(null);
+  }
+
+  /**
+   * Get an array of all the todos having the target completeness status.
+   */
+  public Todo[] filterTodosByCompleteness(Todo[] todos, boolean completeness) {
+    return Arrays.stream(todos).filter(x -> (x.status == completeness)).toArray(Todo[]::new);
   }
 }
