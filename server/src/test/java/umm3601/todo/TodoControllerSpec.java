@@ -18,7 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-// import io.javalin.http.BadRequestResponse;
+import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.NotFoundResponse;
@@ -140,6 +140,37 @@ public class TodoControllerSpec {
       assertFalse(todo.status);
     }
 
+  }
+
+  @Test
+  public void respondsAppropriatelyToIllegalStatus() {
+    // We'll set the requested "status" to be a different string ("hello")
+    Map<String, List<String>> queryParams = new HashMap<>();
+    queryParams.put("status", Arrays.asList(new String[] {"hello"}));
+    when(ctx.queryParamMap()).thenReturn(queryParams);
+
+    // This should now throw a `BadRequestResponse` exception because
+    // our request has an age that can't be parsed to a number.
+    Throwable exception = Assertions.assertThrows(BadRequestResponse.class, () -> {
+      todoController.getTodos(ctx);
+    });
+    assertEquals("Specified status '" + "hello" + "' is not 'complete' or 'incomplete'", exception.getMessage());
+  }
+
+  @Test
+  public void respondsAppropriatelyToIllegalLimit() {
+    // We'll set the requested "limit" to be a string ("abc")
+    // that can't be parsed to a number.
+    Map<String, List<String>> queryParams = new HashMap<>();
+    queryParams.put("limit", Arrays.asList(new String[] {"abc"}));
+    when(ctx.queryParamMap()).thenReturn(queryParams);
+
+    // This should now throw a `BadRequestResponse` exception because
+    // our request has an age that can't be parsed to a number.
+    Throwable exception = Assertions.assertThrows(BadRequestResponse.class, () -> {
+      todoController.getTodos(ctx);
+    });
+    assertEquals("Specified limit '" + "abc" + "' can't be parsed to an integer", exception.getMessage());
   }
 }
 
