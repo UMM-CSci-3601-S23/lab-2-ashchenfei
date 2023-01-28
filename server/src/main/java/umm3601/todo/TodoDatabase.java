@@ -30,8 +30,19 @@ public class TodoDatabase {
 
     // Filter status if it is set
     if (queryParams.containsKey("status")) {
-      boolean status = queryParams.get("status").get(0).equals("complete");
-      filteredTodos = filterTodosByCompleteness(filteredTodos, status);
+      String status = queryParams.get("status").get(0);
+      boolean status_bool = false;
+      if (status.equals("complete")) {
+        status_bool = true;
+      }
+      else if (status.equals("incomplete")) {
+        status_bool = false;
+      }
+      else {
+        throw new BadRequestResponse("Specified status '" + status + "' is not 'complete' or 'incomplete'");
+      }
+
+      filteredTodos = filterTodosByCompleteness(filteredTodos, status_bool);
     }
 
     // Truncate response if limit is set
