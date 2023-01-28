@@ -25,6 +25,7 @@ import io.javalin.http.NotFoundResponse;
 
 import umm3601.Server;
 
+@SuppressWarnings({ "MagicNumber" })
 public class TodoControllerSpec {
   private Context ctx = mock(Context.class);
 
@@ -86,8 +87,10 @@ public class TodoControllerSpec {
 
   @Test
   public void canLimitResponseLength() throws IOException {
+    Integer testLimit = 7;
+
     Map<String, List<String>> queryParams = new HashMap<>();
-    queryParams.put("limit", Arrays.asList(new String[] {"7"}));
+    queryParams.put("limit", Arrays.asList(new String[] {testLimit.toString()}));
     when(ctx.queryParamMap()).thenReturn(queryParams);
 
     todoController.getTodos(ctx);
@@ -95,7 +98,7 @@ public class TodoControllerSpec {
     // Confirm that the number of responded todos is less than or equal to the requested number
     ArgumentCaptor<Todo[]> argument = ArgumentCaptor.forClass(Todo[].class);
     verify(ctx).json(argument.capture());
-    assert(argument.getValue().length <= 7);
+    assertTrue(argument.getValue().length <= testLimit);
   }
 
   @Test

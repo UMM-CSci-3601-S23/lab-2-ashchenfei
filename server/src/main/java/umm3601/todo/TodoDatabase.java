@@ -31,27 +31,26 @@ public class TodoDatabase {
     // Filter status if it is set
     if (queryParams.containsKey("status")) {
       String status = queryParams.get("status").get(0);
-      boolean status_bool = false;
+      boolean statusBool = false;
       if (status.equals("complete")) {
-        status_bool = true;
-      }
-      else if (status.equals("incomplete")) {
-        status_bool = false;
-      }
-      else {
+        statusBool = true;
+      } else if (status.equals("incomplete")) {
+        statusBool = false;
+      } else {
         throw new BadRequestResponse("Specified status '" + status + "' is not 'complete' or 'incomplete'");
       }
 
-      filteredTodos = filterTodosByCompleteness(filteredTodos, status_bool);
+      filteredTodos = filterTodosByCompleteness(filteredTodos, statusBool);
     }
 
     // Truncate response if limit is set
     if (queryParams.containsKey("limit")) {
+      String limitText = queryParams.get("limit").get(0);
       try {
-        int limit = Integer.parseInt(queryParams.get("limit").get(0));
+        int limit = Integer.parseInt(limitText);
         filteredTodos = Arrays.copyOfRange(filteredTodos, 0, limit);
       } catch (NumberFormatException e) {
-        throw new BadRequestResponse("Specified limit '" + queryParams.get("limit").get(0) + "' can't be parsed to an integer");
+        throw new BadRequestResponse("Specified limit '" + limitText + "' can't be parsed to an integer");
       }
     }
 
