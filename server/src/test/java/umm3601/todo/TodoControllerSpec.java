@@ -357,6 +357,39 @@ public class TodoControllerSpec {
       assertTrue(sortedTodos[i].equals(clonedTodos[i]));
     }
   }
+
+  @Test
+  public void canHandleCombination() {
+    // We'll set the requested "orderBy" to be a string ("owner")
+    Map<String, List<String>> queryParams = new HashMap<>();
+    queryParams.put("orderBy", Arrays.asList(new String[] {"category"}));
+    queryParams.put("status", Arrays.asList(new String[] {"complete"}));
+    queryParams.put("owner", Arrays.asList(new String[] {"Blanche"}));
+    queryParams.put("limit", Arrays.asList(new String[] {"12"}));
+    when(ctx.queryParamMap()).thenReturn(queryParams);
+
+    todoController.getTodos(ctx);
+
+    ArgumentCaptor<Todo[]> argument = ArgumentCaptor.forClass(Todo[].class);
+    verify(ctx).json(argument.capture());
+    Todo[] sortedTodos = argument.getValue();
+    Todo[] clonedTodos = Arrays.stream(argument.getValue()).sorted(
+      Comparator.comparing(Todo::getCategory)).toArray(Todo[]::new);
+
+    for (int i = 0; i < clonedTodos.length; i++) {
+      // Ensure the todo is complete
+      assertTrue(sortedTodos[i].status);
+
+      // Ensure Blanche is the owner
+      assertTrue(sortedTodos[i].owner.equals("Blanche"));
+
+      // Ensure the todos are sorted by category
+      assertTrue(sortedTodos[i].equals(clonedTodos[i]));
+    }
+
+    // Ensure the limiting limited the number of responses to 12
+    assertTrue(clonedTodos.length <= 12);
+  }
 }
 
 
