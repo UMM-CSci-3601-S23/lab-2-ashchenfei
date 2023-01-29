@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-//import io.javalin.http.BadRequestResponse;
+import io.javalin.http.BadRequestResponse;
 
 /*
  * A fake "database" of the todo's loaded from file
@@ -28,10 +28,57 @@ public class TodoDatabase {
   public Todo[] listTodos(Map<String, List<String>> queryParams) {
     Todo[] filteredTodos = allTodos;
 
-    return allTodos;
+    // Filter todos by if they contain a given substring
+    if (queryParams.containsKey("contains")) {
+      for (String contained : queryParams.get("contains")) {
+        filteredTodos = filterTodosByContainment(filteredTodos, contained);
+      }
+    }
+
+    // Filter status if it is set
+    if (queryParams.containsKey("status")) {
+      String status = queryParams.get("status").get(0);
+      boolean statusBool = false;
+      if (status.equals("complete")) {
+        statusBool = true;
+      } else if (status.equals("incomplete")) {
+        statusBool = false;
+      } else {
+        throw new BadRequestResponse("Specified status '" + status + "' is not 'complete' or 'incomplete'");
+      }
+
+      filteredTodos = filterTodosByCompleteness(filteredTodos, statusBool);
+    }
+
+    // Truncate response if limit is set
+    if (queryParams.containsKey("limit")) {
+      String limitText = queryParams.get("limit").get(0);
+      try {
+        int limit = Integer.parseInt(limitText);
+        filteredTodos = Arrays.copyOfRange(filteredTodos, 0, limit);
+      } catch (NumberFormatException e) {
+        throw new BadRequestResponse("Specified limit '" + limitText + "' can't be parsed to an integer");
+      }
+    }
+
+    return filteredTodos;
   }
 
   public Todo getTodo(String id) {
     return Arrays.stream(allTodos).filter(x -> x._id.equals(id)).findFirst().orElse(null);
+  }
+
+  /**
+   * Get an array of all the todos having the target completeness status.
+   */
+  public Todo[] filterTodosByCompleteness(Todo[] todos, boolean completeness) {
+    return Arrays.stream(todos).filter(x -> (x.status == completeness)).toArray(Todo[]::new);
+  }
+
+  /**
+   * Get an array of all the todos containing the given string.
+   */
+  public Todo[] filterTodosByContainment(Todo[] todos, String value) {
+    return Arrays.stream(todos).filter(x -> (x.body.contains(value))).toArray(Todo[]::new);
   }
 }
