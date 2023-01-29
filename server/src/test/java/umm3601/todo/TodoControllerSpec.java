@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -256,6 +257,104 @@ public class TodoControllerSpec {
     for (Todo todo : argument.getValue()) {
       assertTrue(todo.body.contains(" eu "));
       assertTrue(todo.body.contains(" et "));
+    }
+  }
+
+  @Test
+  public void respondsAppropriatelyToIllegalOrderAttribute() {
+    // We'll set the requested "orderBy" to be a string ("abc")
+    // that is not an attribute.
+    Map<String, List<String>> queryParams = new HashMap<>();
+    queryParams.put("orderBy", Arrays.asList(new String[] {"abc"}));
+    when(ctx.queryParamMap()).thenReturn(queryParams);
+
+    // This should now throw a `BadRequestResponse` exception because
+    // our request has a string that can't be parsed to an attribute.
+    Throwable exception = Assertions.assertThrows(BadRequestResponse.class, () -> {
+      todoController.getTodos(ctx);
+    });
+
+    assertEquals("Cannot sort by attribute 'abc'", exception.getMessage());
+
+  }
+
+  @Test
+  public void canSortByCategory() {
+    // We'll set the requested "orderBy" to be a string ("category")
+    Map<String, List<String>> queryParams = new HashMap<>();
+    queryParams.put("orderBy", Arrays.asList(new String[] {"category"}));
+    when(ctx.queryParamMap()).thenReturn(queryParams);
+
+    todoController.getTodos(ctx);
+
+    ArgumentCaptor<Todo[]> argument = ArgumentCaptor.forClass(Todo[].class);
+    verify(ctx).json(argument.capture());
+    Todo[] sortedTodos = argument.getValue();
+    Todo[] clonedTodos = Arrays.stream(argument.getValue()).sorted(
+      Comparator.comparing(Todo::getCategory)).toArray(Todo[]::new);
+
+    for (int i = 0; i < clonedTodos.length; i++) {
+      assertTrue(sortedTodos[i].equals(clonedTodos[i]));
+    }
+  }
+
+  @Test
+  public void canSortByBody() {
+    // We'll set the requested "orderBy" to be a string ("body")
+    Map<String, List<String>> queryParams = new HashMap<>();
+    queryParams.put("orderBy", Arrays.asList(new String[] {"body"}));
+    when(ctx.queryParamMap()).thenReturn(queryParams);
+
+    todoController.getTodos(ctx);
+
+    ArgumentCaptor<Todo[]> argument = ArgumentCaptor.forClass(Todo[].class);
+    verify(ctx).json(argument.capture());
+    Todo[] sortedTodos = argument.getValue();
+    Todo[] clonedTodos = Arrays.stream(argument.getValue()).sorted(
+      Comparator.comparing(Todo::getBody)).toArray(Todo[]::new);
+
+    for (int i = 0; i < clonedTodos.length; i++) {
+      assertTrue(sortedTodos[i].equals(clonedTodos[i]));
+    }
+  }
+
+  @Test
+  public void canSortByStatus() {
+    // We'll set the requested "orderBy" to be a string ("status")
+    Map<String, List<String>> queryParams = new HashMap<>();
+    queryParams.put("orderBy", Arrays.asList(new String[] {"status"}));
+    when(ctx.queryParamMap()).thenReturn(queryParams);
+
+    todoController.getTodos(ctx);
+
+    ArgumentCaptor<Todo[]> argument = ArgumentCaptor.forClass(Todo[].class);
+    verify(ctx).json(argument.capture());
+    Todo[] sortedTodos = argument.getValue();
+    Todo[] clonedTodos = Arrays.stream(argument.getValue()).sorted(
+      Comparator.comparing(Todo::getStatus)).toArray(Todo[]::new);
+
+    for (int i = 0; i < clonedTodos.length; i++) {
+      assertTrue(sortedTodos[i].equals(clonedTodos[i]));
+    }
+  }
+
+  @Test
+  public void canSortByOwner() {
+    // We'll set the requested "orderBy" to be a string ("owner")
+    Map<String, List<String>> queryParams = new HashMap<>();
+    queryParams.put("orderBy", Arrays.asList(new String[] {"owner"}));
+    when(ctx.queryParamMap()).thenReturn(queryParams);
+
+    todoController.getTodos(ctx);
+
+    ArgumentCaptor<Todo[]> argument = ArgumentCaptor.forClass(Todo[].class);
+    verify(ctx).json(argument.capture());
+    Todo[] sortedTodos = argument.getValue();
+    Todo[] clonedTodos = Arrays.stream(argument.getValue()).sorted(
+      Comparator.comparing(Todo::getOwner)).toArray(Todo[]::new);
+
+    for (int i = 0; i < clonedTodos.length; i++) {
+      assertTrue(sortedTodos[i].equals(clonedTodos[i]));
     }
   }
 }
