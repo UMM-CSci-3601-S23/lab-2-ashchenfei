@@ -175,6 +175,45 @@ public class TodoControllerSpec {
     });
     assertEquals("Specified limit '" + "abc" + "' can't be parsed to an integer", exception.getMessage());
   }
+
+  @Test
+  public void canGetTodosByContainmentSingle() {
+    // We'll set the requested "status" to be a different string ("hello")
+    Map<String, List<String>> queryParams = new HashMap<>();
+    queryParams.put("contains", Arrays.asList(new String[] {" eu "}));
+    when(ctx.queryParamMap()).thenReturn(queryParams);
+
+    // Call the method on the mock controller with the added
+    // query param map
+    todoController.getTodos(ctx);
+
+    // Confirm that all the todos passed to `json` contain the given word
+    ArgumentCaptor<Todo[]> argument = ArgumentCaptor.forClass(Todo[].class);
+    verify(ctx).json(argument.capture());
+    for (Todo todo : argument.getValue()) {
+      assertTrue(todo.body.contains(" eu "));
+    }
+  }
+
+  @Test
+  public void canGetTodosByContainmentMultiple() {
+    // We'll set the requested "status" to be a different string ("hello")
+    Map<String, List<String>> queryParams = new HashMap<>();
+    queryParams.put("contains", Arrays.asList(new String[] {" eu ", " et "}));
+    when(ctx.queryParamMap()).thenReturn(queryParams);
+
+    // Call the method on the mock controller with the added
+    // query param map
+    todoController.getTodos(ctx);
+
+    // Confirm that all the todos passed to `json` contain the given word
+    ArgumentCaptor<Todo[]> argument = ArgumentCaptor.forClass(Todo[].class);
+    verify(ctx).json(argument.capture());
+    for (Todo todo : argument.getValue()) {
+      assertTrue(todo.body.contains(" eu "));
+      assertTrue(todo.body.contains(" et "));
+    }
+  }
 }
 
 
