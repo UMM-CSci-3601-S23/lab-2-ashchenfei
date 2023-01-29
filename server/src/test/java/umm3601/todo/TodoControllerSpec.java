@@ -133,7 +133,7 @@ public class TodoControllerSpec {
 
     // Call the method on the mock controller with the added
     // query param map to limit the result to just todos with
-    // status complete.
+    // status incomplete.
     todoController.getTodos(ctx);
 
     // Confirm that all the todos passed to `json` have status complete.
