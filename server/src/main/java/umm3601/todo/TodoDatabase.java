@@ -28,6 +28,13 @@ public class TodoDatabase {
   public Todo[] listTodos(Map<String, List<String>> queryParams) {
     Todo[] filteredTodos = allTodos;
 
+    // Filter todos by if they contain a given substring
+    if (queryParams.containsKey("contains")) {
+      for (String contained : queryParams.get("contains")) {
+        filteredTodos = filterTodosByContainment(filteredTodos, contained);
+      }
+    }
+
     // Filter status if it is set
     if (queryParams.containsKey("status")) {
       String status = queryParams.get("status").get(0);
@@ -66,5 +73,12 @@ public class TodoDatabase {
    */
   public Todo[] filterTodosByCompleteness(Todo[] todos, boolean completeness) {
     return Arrays.stream(todos).filter(x -> (x.status == completeness)).toArray(Todo[]::new);
+  }
+
+  /**
+   * Get an array of all the todos containing the given string.
+   */
+  public Todo[] filterTodosByContainment(Todo[] todos, String value) {
+    return Arrays.stream(todos).filter(x -> (x.body.contains(value))).toArray(Todo[]::new);
   }
 }
