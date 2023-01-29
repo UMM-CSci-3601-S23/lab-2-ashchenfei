@@ -63,6 +63,12 @@ public class TodoDatabase {
       filteredTodos = filterTodosByCompleteness(filteredTodos, statusBool);
     }
 
+    // Sort the todos based on the requested parameter
+    if (queryParams.containsKey("orderBy")) {
+      String attrib = queryParams.get("orderBy").get(0);
+      filteredTodos = sortTodosByAttribute(filteredTodos, attrib);
+    }
+
     // Truncate response if limit is set
     if (queryParams.containsKey("limit")) {
       String limitText = queryParams.get("limit").get(0);
@@ -93,6 +99,23 @@ public class TodoDatabase {
    */
   public Todo[] filterTodosByContainment(Todo[] todos, String value) {
     return Arrays.stream(todos).filter(x -> (x.body.contains(value))).toArray(Todo[]::new);
+  }
+
+  /**
+   * Sort the array of todos by the given attribute
+   */
+  public Todo[] sortTodosByAttribute(Todo[] todos, String attrib) {
+    if (attrib.equals("category")) {
+      return Arrays.stream(todos).sorted(Comparator.comparing(Todo::getCategory)).toArray(Todo[]::new);
+    } else if (attrib.equals("owner")) {
+      return Arrays.stream(todos).sorted(Comparator.comparing(Todo::getOwner)).toArray(Todo[]::new);
+    } else if (attrib.equals("body")) {
+      return Arrays.stream(todos).sorted(Comparator.comparing(Todo::getBody)).toArray(Todo[]::new);
+    } else if (attrib.equals("status")) {
+      return Arrays.stream(todos).sorted(Comparator.comparing(Todo::getStatus)).toArray(Todo[]::new);
+    } else {
+      throw new BadRequestResponse("Cannot sort by attribute '" + attrib + "'");
+    }
   }
 
   /**
