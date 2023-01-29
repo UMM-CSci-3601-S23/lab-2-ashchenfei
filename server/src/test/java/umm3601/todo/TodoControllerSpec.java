@@ -146,6 +146,50 @@ public class TodoControllerSpec {
   }
 
   @Test
+  public void canFilterTodosByOwner() throws IOException {
+    // Add a query param map to the context that maps "owner"
+    // to "Roberta".
+    Map<String, List<String>> queryParams = new HashMap<>();
+    queryParams.put("owner", Arrays.asList(new String[] {"Roberta"}));
+    when(ctx.queryParamMap()).thenReturn(queryParams);
+
+    // Call the method on the mock controller with the added
+    // query param map to limit the result to just todos with
+    // owner Roberta.
+    todoController.getTodos(ctx);
+
+    // Confirm that all the todos passed to `json` have the correct owner.
+    ArgumentCaptor<Todo[]> argument = ArgumentCaptor.forClass(Todo[].class);
+    verify(ctx).json(argument.capture());
+    for (Todo todo : argument.getValue()) {
+      assertTrue(todo.owner.equals("Roberta"));
+    }
+
+  }
+
+  @Test
+  public void canFilterTodosByCategory() throws IOException {
+    // Add a query param map to the context that maps "category"
+    // to "software design".
+    Map<String, List<String>> queryParams = new HashMap<>();
+    queryParams.put("category", Arrays.asList(new String[] {"software design"}));
+    when(ctx.queryParamMap()).thenReturn(queryParams);
+
+    // Call the method on the mock controller with the added
+    // query param map to limit the result to just todos with
+    // category software design.
+    todoController.getTodos(ctx);
+
+    // Confirm that all the todos passed to `json` have the correct category.
+    ArgumentCaptor<Todo[]> argument = ArgumentCaptor.forClass(Todo[].class);
+    verify(ctx).json(argument.capture());
+    for (Todo todo : argument.getValue()) {
+      assertTrue(todo.category.equals("software design"));
+    }
+
+  }
+
+  @Test
   public void respondsAppropriatelyToIllegalStatus() {
     // We'll set the requested "status" to be a different string ("hello")
     Map<String, List<String>> queryParams = new HashMap<>();
